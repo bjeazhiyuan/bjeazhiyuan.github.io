@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>高招录取结果查询（模拟）</title>
+    <style>
+        /* 重置默认样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        /* 设置背景图片和字体 */
+        body {
+            background-image: url('bjea_bg.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: top center;
+            font-family: Arial, sans-serif;
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        /* 标题样式 */
+        #title {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3vw;
+            color: #333;
+            text-align: center;
+        }
+        /* 学号标签 */
+        #label-student-id {
+            position: absolute;
+            top: 40%;
+            left: 23%;
+            font-size: 1.5vw;
+        }
+        /* 学号输入框 */
+        #student-id {
+            position: absolute;
+            top: 40%;
+            left: 28%;
+            width: 15%;
+            padding: 0.5vw;
+            font-size: 1.2vw;
+        }
+        /* 姓名标签 */
+        #label-student-name {
+            position: absolute;
+            top: 48%;
+            left: 23%;
+            font-size: 1.5vw;
+        }
+        /* 姓名输入框 */
+        #student-name {
+            position: absolute;
+            top: 48%;
+            left: 28%;
+            width: 15%;
+            padding: 0.5vw;
+            font-size: 1.2vw;
+        }
+        /* 按钮样式 */
+        #check-button {
+            position: absolute;
+            top: 57%;
+            left: 28%;
+            padding: 0.5vw 1vw;
+            font-size: 1.2vw;
+            cursor: pointer;
+        }
+        /* 禁用按钮的样式 */
+        #check-button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        /* 提示信息样式 */
+        #notice {
+            position: absolute;
+            top: 65%;
+            left: 26%;
+            color: red;
+            font-size: 1.2vw;
+            line-height: 1.5;
+        }
+        /* 结果容器样式 */
+        #result-container {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            color: #333;
+            /*text-align: center;*/
+        }
+        #result-container p {
+            margin: 0.5vw 0;
+            font-size: 2vw;
+        }
+        /* 左下角提示的样式 */
+        #left-bottom-notice {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            margin: 0;
+            padding: 10px;
+            font-size: 1rem;
+            color: #333;
+            background-color: rgba(255, 255, 255, 0.7);
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 添加标题 -->
+<h1 id="title">高招录取结果查询（模拟）</h1>
+
+<!-- 学号 -->
+<label for="student-id" id="label-student-id">学号：</label>
+<input type="text" id="student-id" placeholder="请输入学号">
+
+<!-- 姓名 -->
+<label for="student-name" id="label-student-name">姓名：</label>
+<input type="text" id="student-name" placeholder="请输入姓名">
+
+<!-- 查询按钮 -->
+<button id="check-button">查询录取结果</button>
+
+<!-- 显示提示信息 -->
+<p id="notice"></p>
+
+<!-- 结果容器 -->
+<div id="result-container">
+    <!-- 查询结果将显示在这里 -->
+</div>
+
+<!-- 左下角提示 -->
+<p id="left-bottom-notice" style="font-size: 1.3vw;">*建议使用 PC 端浏览器，手机端页面十分丑陋</p>
+
+<script>
+    // 定义一个空对象来存储学生数据
+    var students = {};
+
+    function loadCSVData() {
+        fetch('result.csv')
+            .then(response => response.text())
+            .then(data => {
+                // 解析数据
+                const lines = data.trim().split('\n');
+                for (let i = 1; i < lines.length; i++) { // 从第二行开始（跳过标题行）
+                    const [id, name, result] = lines[i].split(',');
+                    students[id.trim()] = {
+                        name: name.trim(),
+                        result: result.trim()
+                    };
+                }
+            })
+            .catch(error => {
+                console.error('读取数据失败:', error);
+            });
+    }
+
+    // 页面加载时调用函数来读取数据文件
+    loadCSVData();
+
+    // 设置查询开启的时间
+    var openTime = new Date('2024-10-30T16:50:00');
+
+    // 获取当前时间
+    var now = new Date();
+
+    var checkButton = document.getElementById('check-button');
+    var notice = document.getElementById('notice');
+
+    // 检查当前时间是否在开放时间之后
+    if (now >= openTime) {
+        // 允许查询
+        checkButton.disabled = false;
+        notice.textContent = '';
+    } else {
+        // 禁用查询按钮并显示提示信息
+        checkButton.disabled = true;
+        notice.innerHTML = '查询功能将于2024年10月30日17:00开启，<br>请耐心等待。<br>时间到后刷新页面即可。';
+    }
+
+    // 点击查询按钮的事件监听器
+    checkButton.addEventListener('click', function() {
+        var studentId = document.getElementById('student-id').value.trim();
+        var studentName = document.getElementById('student-name').value.trim();
+        var resultContainer = document.getElementById('result-container');
+
+        if (students.hasOwnProperty(studentId) && students[studentId].name === studentName) {
+            resultContainer.innerHTML = '<p>' + studentName + '同学，你的录取结果是：</p>' +
+                                        '<p style="font-size: 2.5vw; color: red;"><strong>' + students[studentId].result + '</strong></p>';
+        } else {
+            resultContainer.innerHTML = '<p style="color: red;">学号或姓名有误，请重试。</p>' +
+                                        '<p style="color: red;">如确定输入内容正确，请联系老师处理。</p>';
+        }
+    });
+
+    // 每分钟检查一次时间，自动启用查询功能
+    setInterval(function() {
+        now = new Date();
+        if (now >= openTime && checkButton.disabled) {
+            checkButton.disabled = false;
+            notice.textContent = '';
+        }
+    }, 60000); // 每60秒检查一次
+
+    // 为输入框添加回车键事件监听器
+    var inputs = document.querySelectorAll('#student-id, #student-name');
+
+    inputs.forEach(function(input) {
+        input.addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                checkButton.click();
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
