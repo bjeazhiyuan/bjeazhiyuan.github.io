@@ -90,10 +90,9 @@
         /* 结果容器样式 */
         #result-container {
             position: absolute;
-            top: 40%;
+            top: 36%;
             left: 50%;
             color: #333;
-            /*text-align: center;*/
         }
         #result-container p {
             margin: 0.5vw 0;
@@ -151,10 +150,11 @@
                 // 解析数据
                 const lines = data.trim().split('\n');
                 for (let i = 1; i < lines.length; i++) { // 从第二行开始（跳过标题行）
-                    const [id, name, result] = lines[i].split(',');
+                    const [id, name, result, major] = lines[i].split(',');
                     students[id.trim()] = {
                         name: name.trim(),
-                        result: result.trim()
+                        result: result.trim(),
+                        major: major.trim()
                     };
                 }
             })
@@ -194,7 +194,8 @@
 
         if (students.hasOwnProperty(studentId) && students[studentId].name === studentName) {
             resultContainer.innerHTML = '<p>' + studentName + '同学，你的录取结果是：</p>' +
-                                        '<p style="font-size: 2.5vw; color: red;"><strong>' + students[studentId].result + '</strong></p>';
+                                        '<p style="font-size: 2.5vw;"><strong style="color: black;">院校：</strong><strong style="color: red;">' + students[studentId].result + '</strong></p>' +
+                                        '<p style="font-size: 2.5vw;"><strong style="color: black;">专业：</strong><strong style="color: red;">' + students[studentId].major + '</strong></p>';
         } else {
             resultContainer.innerHTML = '<p style="color: red;">学号或姓名有误，请重试。</p>' +
                                         '<p style="color: red;">如确定输入内容正确，请联系老师处理。</p>';
